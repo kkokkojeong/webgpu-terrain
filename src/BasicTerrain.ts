@@ -7,8 +7,8 @@ class TriangleList {
     private _data: number[];        // height map array
     private _worldScale: number;    // scale factor to height(y-axis)
 
-    public vertices: Vector3D[];
-    public indices: number[];
+    public vertices: Float32Array;
+    public indices: Uint32Array;
 
     constructor(options: {
         width: number;
@@ -20,9 +20,6 @@ class TriangleList {
         this._depth = options.depth;
         this._data = options.data;
         this._worldScale = options.worldScale || 1;
-
-        this.vertices = [];
-        this.indices = [];
     }
 
     public createTriangleList() {
@@ -36,14 +33,19 @@ class TriangleList {
         }
 
         const worldScale = this._worldScale;
+        const verts = [];
 
         for (let z = 0; z < this._depth; z++) {
             for (let x = 0; x < this._width; x++) {
                 const vertex = new Vector3D(x * worldScale, getHeight(x, z), z * worldScale);
-                this.vertices.push(vertex);
-                // console.log(vertex.toString());
+                verts.push(vertex.x);
+                verts.push(vertex.y);
+                verts.push(vertex.z);
             }
         }
+
+        // convert to float32array
+        this.vertices = new Float32Array(verts);
     }
 
     /**
@@ -52,6 +54,7 @@ class TriangleList {
     private _makeIndices() {
         const width = this._width;
         const depth = this._depth;
+        const indices = []
 
         for (let z = 0; z < depth - 1; z++) {
             for (let x = 0; x < width - 1; x++) {
@@ -67,16 +70,19 @@ class TriangleList {
                 // 0--------3
 
                 // add top left triangle
-                this.indices.push(bottomLeft);
-                this.indices.push(topLeft);
-                this.indices.push(topRight);
+                indices.push(bottomLeft);
+                indices.push(topLeft);
+                indices.push(topRight);
 
                 // add bottom right triangle
-                this.indices.push(bottomLeft);
-                this.indices.push(topRight);
-                this.indices.push(bottomRight);
+                indices.push(bottomLeft);
+                indices.push(topRight);
+                indices.push(bottomRight);
             }
         }
+
+        // convert to uint32array
+        this.indices = new Uint32Array(indices);
     }
 }
 
@@ -107,9 +113,11 @@ class BasicTerrain {
             worldScale: this._worldScale
         });
         this._triangleList.createTriangleList();
+
+        console.log("this._triangleList", this._triangleList);
     }
 
-    public getTriangleList(): TriangleList {
+    public getMesh(): TriangleList {
         return this._triangleList;
     }
 }

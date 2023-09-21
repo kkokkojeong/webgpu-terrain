@@ -1,18 +1,26 @@
 const vs = `
+    struct VSOutput {
+        @builtin(position) position: vec4<f32>,
+        @location(0) color: vec4<f32>,
+    };
+
     @vertex
-    fn main(@builtin(vertex_index) vertexIndex : u32) -> @builtin(position) vec4f  {
-        let pos = array(
-            vec2f( 0.0,  0.5),  // top center
-            vec2f(-0.5, -0.5),  // bottom left
-            vec2f( 0.5, -0.5)   // bottom right
-        );
-        return vec4f(pos[vertexIndex], 0.0, 1.0);
+    fn main(@location(0) pos: vec4<f32>) -> VSOutput {
+        var vsOut: VSOutput;
+        vsOut.position = pos;
+        vsOut.color = vec4(1.0, 0.0, 0.0, 1.0);
+        return vsOut;
     }
 `;
 const fs = `
+    struct FSInput {
+        @builtin(position) position: vec4<f32>,
+        @location(0) color: vec4<f32>,
+    };
+
     @fragment
-    fn main() -> @location(0) vec4f {
-        return vec4f(1, 0, 0, 1);
+    fn main(vsOut: FSInput) -> @location(0) vec4f {
+        return vsOut.color;
     }
 `;
 
