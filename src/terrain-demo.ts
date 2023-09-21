@@ -26,6 +26,9 @@ class TerrainDemo {
         const {width, depth, heigts} = terrainData;
 
         this._canvas = document.getElementById(id) as HTMLCanvasElement;
+        this._canvas.width = this._canvas.width * devicePixelRatio;
+        this._canvas.height = this._canvas.height * devicePixelRatio; 
+
         this._terrain = new BasicTerrain(width, depth, heigts);
     }
 
@@ -93,6 +96,7 @@ class TerrainDemo {
         const canvasFormat = navigator.gpu.getPreferredCanvasFormat();
         const device = await adapter.requestDevice();
         const context = this._canvas.getContext("webgpu") as GPUCanvasContext;
+        console.log("canvasFormat", canvasFormat);
 
         context.configure({
             device,
@@ -166,10 +170,16 @@ class TerrainDemo {
 
         // buffer 생성 후 반드시 unmap 필요
         new Float32Array(vertexBuffer.getMappedRange()).set(vertices);
-        new Uint32Array(indexBuffer.getMappedRange()).set(indices);
-
         vertexBuffer.unmap();
+
+        new Uint32Array(indexBuffer.getMappedRange()).set(indices);
         indexBuffer.unmap();
+
+        // new Float32Array(vertexBuffer.getMappedRange()).set(vertices);
+        // new Uint32Array(indexBuffer.getMappedRange()).set(indices);
+
+        // vertexBuffer.unmap();
+        // indexBuffer.unmap();
 
         this._vertexBuffer = vertexBuffer;
         this._indexBuffer = indexBuffer;

@@ -1,5 +1,34 @@
 import { Vector3D } from "./Vector";
 
+// 쉐이더, 렌더링이 잘 나오는지만 확인하는 더미 큐브 데이터
+const vertices = new Float32Array([
+    // position
+    -1, -1,  1,
+     1, -1,  1,
+     1,  1,  1,
+    -1,  1,  1,
+    -1, -1, -1,
+     1, -1, -1,
+     1,  1, -1,
+    -1,  1, -1,
+]);
+const indices = new Uint32Array([
+    // front
+    0, 1, 2, 2, 3, 0,
+    // right
+    1, 5, 6, 6, 2, 1,
+    // back
+    4, 7, 6, 6, 5, 4,
+    // left
+    0, 3, 7, 7, 4, 0,
+    // top
+    3, 2, 6, 6, 7, 3,
+    // bottom
+    0, 4, 5, 5, 1, 0
+]);
+
+
+
 class TriangleList {
 
     private _depth: number;         // z-axis
@@ -23,8 +52,12 @@ class TriangleList {
     }
 
     public createTriangleList() {
-        this._makeVertices();
-        this._makeIndices();
+        // this._makeVertices();
+        // this._makeIndices();
+
+        /* Test using cube dummy data */
+        this.indices = indices;
+        this.vertices = vertices;
     }
 
     private _makeVertices() {
