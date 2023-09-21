@@ -10,8 +10,9 @@ const vertices = new Float32Array([
     -1, -1, -1,
      1, -1, -1,
      1,  1, -1,
-    -1,  1, -1,
+    -1,  1, -1
 ]);
+
 const indices = new Uint32Array([
     // front
     0, 1, 2, 2, 3, 0,
@@ -25,6 +26,21 @@ const indices = new Uint32Array([
     3, 2, 6, 6, 7, 3,
     // bottom
     0, 4, 5, 5, 1, 0
+]);
+
+const indicesWithLine = new Uint32Array([
+    0, 1,
+    1, 2,
+    2, 3,
+    3, 0,
+    4, 5,
+    5, 6,
+    6, 7,
+    7, 4,
+    0, 4,
+    1, 5,
+    2, 6,
+    3, 7
 ]);
 
 
@@ -56,7 +72,7 @@ class TriangleList {
         // this._makeIndices();
 
         /* Test using cube dummy data */
-        this.indices = indices;
+        this.indices = indicesWithLine; //indices;
         this.vertices = vertices;
     }
 

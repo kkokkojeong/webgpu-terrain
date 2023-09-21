@@ -1,6 +1,8 @@
 import BasicTerrain from "./BasicTerrain";
 import basicShader from "./shaders/basic";
 
+type PolygonMode = 'line' | 'fill'; 
+
 class TerrainDemo {
 
     private _canvas: HTMLCanvasElement;
@@ -17,6 +19,8 @@ class TerrainDemo {
 
     // terrain
     private _terrain: BasicTerrain;
+
+    private _polygonMode: PolygonMode = 'line';
 
     constructor(id: string, terrainData: {
         width: number,
@@ -40,6 +44,7 @@ class TerrainDemo {
         const pipeline = this._pipeline as GPURenderPipeline;
 
         const indexCount = this._terrain.getMesh().indices.length;
+        const vertexCount = this._terrain.getMesh().vertices.length / 3;
 
         const textureView = context.getCurrentTexture().createView();
         const depthTexture = device.createTexture({
@@ -76,9 +81,11 @@ class TerrainDemo {
         renderPass.setVertexBuffer(0, this._vertexBuffer);
         renderPass.setIndexBuffer(this._indexBuffer, "uint32")
 
+
         renderPass.drawIndexed(indexCount);
 
-        console.log("indexCount", indexCount);
+
+        console.log(vertexCount, indexCount);
 
         renderPass.end();
 
@@ -136,7 +143,7 @@ class TerrainDemo {
                 }]
             },
             primitive: {
-                topology: "triangle-list",
+                topology: this._polygonMode === 'fill' ? "triangle-list" : "line-list",
                 cullMode: "back"
             },
             depthStencil: {
