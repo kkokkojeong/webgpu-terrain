@@ -59,7 +59,7 @@ class Terrain {
         context.configure({
             device,
             format: canvasFormat,
-            // alphaMode: "opaque"
+            alphaMode: "opaque"
         });
 
         const pipleline = device.createRenderPipeline({
