@@ -13,7 +13,6 @@ window.onload = () => {
   
   // let animationId;
   // const animate = () => {
-  //   console.log("animate!!");
   //   demo.render();
   //   animationId = window.requestAnimationFrame(animate);
   // }

@@ -55,7 +55,7 @@ class TriangleList {
 
     public vertices: Float32Array;
     public indices: Uint32Array;
-    public center: Vector2D;
+    public center: Vector3D;
 
     constructor(options: {
         width: number;
@@ -140,7 +140,10 @@ class TriangleList {
 
     private _calculateCenter() {
         const worldScale = this._worldScale;
-        this.center = new Vector2D(this._width * worldScale / 2, this._depth * worldScale / 2);
+        const heights = this._data;
+        const max = Math.max(...heights);
+
+        this.center = new Vector3D(this._width * worldScale / 2, max / 2, this._depth * worldScale / 2);
     }
 }
 

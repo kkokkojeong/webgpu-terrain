@@ -1,7 +1,10 @@
-import {mat4, utils, vec3} from 'wgpu-matrix';
+import {mat4, utils} from 'wgpu-matrix';
 
 import BasicTerrain from "./BasicTerrain";
 import basicShader from "./shaders/basic";
+
+import * as createCamera from '3d-view-controls';
+
 
 type PolygonMode = 'line' | 'fill'; 
 
@@ -25,6 +28,8 @@ class TerrainDemo {
     // terrain
     private _terrain: BasicTerrain;
 
+    private _camera: any;
+
     private _polygonMode: PolygonMode = 'line';
 
     constructor(id: string, terrainData: {
@@ -47,10 +52,27 @@ class TerrainDemo {
         this._canvas.style.height = `${canvasHeight}px`;
 
         this._terrain = new BasicTerrain(width, depth, heigts);
+
+        // create camera 일단 에러 무시 실행에는 지장 없음
+        this._camera = createCamera(this._canvas, {
+            center: [0, 0, 0],
+            up: [0.0, 1.0, 0.0],
+            eye: [0, 500, -1000],
+            zoomMax: 10,
+            zoomSpeed: 2
+        });
+
+        console.log(this._camera);
     }
 
     public async render() {
         if (!this._initialized) await this._init();
+
+        // if (this._camera.tick()) {
+        //     return;
+        // }
+
+        console.log("draw!!!");
 
         const device = this._device as GPUDevice;
         const context = this._context as GPUCanvasContext;
@@ -91,7 +113,7 @@ class TerrainDemo {
 
         // model transformation
         const center = this._terrain.getCenter();
-        const model = mat4.translation([-center.x, 0, 0]);
+        const model = mat4.translation([-center.x, -center.y - 300, 0]);
 
         // projection, viewing transformation
         const fov = utils.degToRad(45);
@@ -99,12 +121,14 @@ class TerrainDemo {
         const near = 0.1; 
         const far = 2000;
 
-        const eye = [0, 800, -500];
-        const target = [0.0, 0.0, 1.0];
-        const up = [0.0, 1.0, 0.0];
+        // const eye = [0, 800, -500];
+        // const target = [0.0, 0.0, 1.0];
+        // const up = [0.0, 1.0, 0.0];
 
         const persp = mat4.perspective(fov, aspect, near, far);
-        const camera = mat4.lookAt(eye, target, up);
+
+        const camera = this._camera.matrix;
+        //mat4.lookAt(eye, target, up);
         const projView = mat4.mul(persp, camera);
 
         device.queue.writeBuffer(this._uniformBuffer as GPUBuffer, 0, mat4.mul(projView, model)  as ArrayBuffer);
@@ -117,8 +141,6 @@ class TerrainDemo {
         renderPass.setBindGroup(0, this._bindGroup);
 
         renderPass.drawIndexed(indexCount);
-
-        // console.log(vertexCount, indexCount);
 
         renderPass.end();
 

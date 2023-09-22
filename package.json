@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@originjs/vite-plugin-commonjs": "^1.0.3",
     "@webgpu/types": "^0.1.34",
+    "3d-view-controls": "^2.2.2",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "wgpu-matrix": "^2.5.0"

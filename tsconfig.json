@@ -20,7 +20,9 @@
     "noFallthroughCasesInSwitch": true,
 
     /* custom */
+    // "esModuleInterop": true,
     "strictPropertyInitialization": false,
+    // "allowSyntheticDefaultImports": true,
 
     /* WebGPU type */
     "typeRoots": ["./node_modules/@webgpu/types"]
