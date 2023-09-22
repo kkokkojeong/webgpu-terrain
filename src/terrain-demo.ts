@@ -1,4 +1,4 @@
-import {mat4, utils} from 'wgpu-matrix';
+import {mat4, utils, vec3} from 'wgpu-matrix';
 
 import BasicTerrain from "./BasicTerrain";
 import basicShader from "./shaders/basic";
@@ -25,7 +25,7 @@ class TerrainDemo {
     // terrain
     private _terrain: BasicTerrain;
 
-    private _polygonMode: PolygonMode = 'fill';
+    private _polygonMode: PolygonMode = 'line';
 
     constructor(id: string, terrainData: {
         width: number,
@@ -89,13 +89,17 @@ class TerrainDemo {
             }
         });
 
+        // model transformation
+        const center = this._terrain.getCenter();
+        const model = mat4.translation([-center.x, 0, 0]);
+
         // projection, viewing transformation
         const fov = utils.degToRad(45);
         const aspect = this._canvas.width / this._canvas.height;
         const near = 0.1; 
         const far = 2000;
 
-        const eye = [400, 800, -50];
+        const eye = [0, 800, -500];
         const target = [0.0, 0.0, 1.0];
         const up = [0.0, 1.0, 0.0];
 
@@ -103,9 +107,7 @@ class TerrainDemo {
         const camera = mat4.lookAt(eye, target, up);
         const projView = mat4.mul(persp, camera);
 
-        console.log(projView);
-
-        device.queue.writeBuffer(this._uniformBuffer as GPUBuffer, 0, projView as ArrayBuffer);
+        device.queue.writeBuffer(this._uniformBuffer as GPUBuffer, 0, mat4.mul(projView, model)  as ArrayBuffer);
 
         renderPass.setPipeline(pipeline);
 

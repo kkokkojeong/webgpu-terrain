@@ -1,4 +1,4 @@
-import { Vector3D } from "./Vector";
+import { Vector2D, Vector3D } from "./Vector";
 
 // 쉐이더, 렌더링이 잘 나오는지만 확인하는 더미 큐브 데이터
 const vertices = new Float32Array([
@@ -52,8 +52,10 @@ class TriangleList {
     private _data: number[];        // height map array
     private _worldScale: number;    // scale factor to height(y-axis)
 
+
     public vertices: Float32Array;
     public indices: Uint32Array;
+    public center: Vector2D;
 
     constructor(options: {
         width: number;
@@ -70,6 +72,8 @@ class TriangleList {
     public createTriangleList() {
         this._makeVertices();
         this._makeIndices();
+
+        this._calculateCenter();
 
         /* Test using cube dummy data */
         // this.indices = indices; //indicesWithLine;
@@ -133,6 +137,11 @@ class TriangleList {
         // convert to uint32array
         this.indices = new Uint32Array(indices);
     }
+
+    private _calculateCenter() {
+        const worldScale = this._worldScale;
+        this.center = new Vector2D(this._width * worldScale / 2, this._depth * worldScale / 2);
+    }
 }
 
 
@@ -168,6 +177,10 @@ class BasicTerrain {
 
     public getMesh(): TriangleList {
         return this._triangleList;
+    }
+
+    public getCenter(): Vector2D {
+        return this._triangleList.center;
     }
 }
 
