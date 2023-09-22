@@ -68,12 +68,12 @@ class TriangleList {
     }
 
     public createTriangleList() {
-        // this._makeVertices();
-        // this._makeIndices();
+        this._makeVertices();
+        this._makeIndices();
 
         /* Test using cube dummy data */
-        this.indices = indicesWithLine; //indices;
-        this.vertices = vertices;
+        // this.indices = indices; //indicesWithLine;
+        // this.vertices = vertices;
     }
 
     private _makeVertices() {
@@ -149,7 +149,7 @@ class BasicTerrain {
         this._width = w;
         this._depth = z;
         this._heightMap = heightMap;
-        this._worldScale = worldScale || 1;
+        this._worldScale = worldScale || 3;
 
         this._init();
     }

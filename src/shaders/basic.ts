@@ -1,8 +1,13 @@
 const vs = `
+    struct Uniforms {
+        matrix: mat4x4f,
+    };
     struct VSOutput {
         @builtin(position) position: vec4<f32>,
         @location(0) color: vec4<f32>,
     };
+
+    @group(0) @binding(0) var<uniform> uni: Uniforms;
 
     @vertex
     fn main(@location(0) pos: vec4<f32>) -> VSOutput {
@@ -28,8 +33,10 @@ const vs = `
             4.898979663848877
         );
 
-        vsOut.position = proj * pos;
-        vsOut.color = vec4(1.0, 1.0, 0.0, 1.0);
+        // vsOut.position = proj * pos;
+        vsOut.position = uni.matrix * pos;
+        vsOut.color = vec4(pos.y / 200.0);
+
         return vsOut;
     }
 `;

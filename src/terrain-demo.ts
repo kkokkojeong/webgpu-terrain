@@ -1,3 +1,5 @@
+import {mat4, utils} from 'wgpu-matrix';
+
 import BasicTerrain from "./BasicTerrain";
 import basicShader from "./shaders/basic";
 
@@ -16,11 +18,14 @@ class TerrainDemo {
 
     private _vertexBuffer: GPUBuffer;
     private _indexBuffer: GPUBuffer;
+    private _uniformBuffer: GPUBuffer;
+
+    private _bindGroup: GPUBindGroup;
 
     // terrain
     private _terrain: BasicTerrain;
 
-    private _polygonMode: PolygonMode = 'line';
+    private _polygonMode: PolygonMode = 'fill';
 
     constructor(id: string, terrainData: {
         width: number,
@@ -30,8 +35,16 @@ class TerrainDemo {
         const {width, depth, heigts} = terrainData;
 
         this._canvas = document.getElementById(id) as HTMLCanvasElement;
-        this._canvas.width = this._canvas.width * devicePixelRatio;
-        this._canvas.height = this._canvas.height * devicePixelRatio; 
+        
+        const canvasWidth = this._canvas.width;
+        const canvasHeight = this._canvas.height;
+        
+        this._canvas.width = canvasWidth * devicePixelRatio;
+        this._canvas.height = canvasHeight * devicePixelRatio; 
+
+        // Maintain the same canvas size, potentially downscaling it for HiDPI displays
+        this._canvas.style.width = `${canvasWidth}px`;
+        this._canvas.style.height = `${canvasHeight}px`;
 
         this._terrain = new BasicTerrain(width, depth, heigts);
     }
@@ -76,16 +89,34 @@ class TerrainDemo {
             }
         });
 
+        // projection, viewing transformation
+        const fov = utils.degToRad(45);
+        const aspect = this._canvas.width / this._canvas.height;
+        const near = 0.1; 
+        const far = 2000;
+
+        const eye = [400, 800, -50];
+        const target = [0.0, 0.0, 1.0];
+        const up = [0.0, 1.0, 0.0];
+
+        const persp = mat4.perspective(fov, aspect, near, far);
+        const camera = mat4.lookAt(eye, target, up);
+        const projView = mat4.mul(persp, camera);
+
+        console.log(projView);
+
+        device.queue.writeBuffer(this._uniformBuffer as GPUBuffer, 0, projView as ArrayBuffer);
+
         renderPass.setPipeline(pipeline);
 
         renderPass.setVertexBuffer(0, this._vertexBuffer);
-        renderPass.setIndexBuffer(this._indexBuffer, "uint32")
+        renderPass.setIndexBuffer(this._indexBuffer, "uint32");
 
+        renderPass.setBindGroup(0, this._bindGroup);
 
         renderPass.drawIndexed(indexCount);
 
-
-        console.log(vertexCount, indexCount);
+        // console.log(vertexCount, indexCount);
 
         renderPass.end();
 
@@ -111,7 +142,7 @@ class TerrainDemo {
             alphaMode: "opaque"
         });
 
-        const pipleline = device.createRenderPipeline({
+        const pipeline = device.createRenderPipeline({
             label: "terrain render pipeline",
             layout: "auto",
             vertex: {
@@ -156,7 +187,7 @@ class TerrainDemo {
         this._adapter = adapter;
         this._device = device;
         this._context = context;
-        this._pipeline = pipleline;
+        this._pipeline = pipeline;
 
         // create buffer(vertices, index)
         const terrain = this._terrain;
@@ -175,6 +206,12 @@ class TerrainDemo {
             mappedAtCreation: true
         });
 
+        const uniformBuffer = device.createBuffer({
+            label: "terrain uniform buffer",
+            size: 64, // float(4bytes) x 16 (=4x4 matrix)
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        });
+
         // buffer 생성 후 반드시 unmap 필요
         new Float32Array(vertexBuffer.getMappedRange()).set(vertices);
         vertexBuffer.unmap();
@@ -182,14 +219,22 @@ class TerrainDemo {
         new Uint32Array(indexBuffer.getMappedRange()).set(indices);
         indexBuffer.unmap();
 
-        // new Float32Array(vertexBuffer.getMappedRange()).set(vertices);
-        // new Uint32Array(indexBuffer.getMappedRange()).set(indices);
-
-        // vertexBuffer.unmap();
-        // indexBuffer.unmap();
 
         this._vertexBuffer = vertexBuffer;
         this._indexBuffer = indexBuffer;
+        this._uniformBuffer = uniformBuffer;
+
+        // uniform binding
+        this._bindGroup = device.createBindGroup({
+            label: "terrain bind group",
+            layout: pipeline.getBindGroupLayout(0),
+            entries: [
+                {
+                    binding: 0,
+                    resource: { buffer: uniformBuffer }
+                }
+            ]
+        });
 
         console.log(this._vertexBuffer, this._indexBuffer);
 
