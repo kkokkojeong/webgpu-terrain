@@ -1,4 +1,4 @@
-import { Vector2D, Vector3D } from "./Vector";
+import { Vector2D, Vector3D } from "./math/Vector";
 
 // 쉐이더, 렌더링이 잘 나오는지만 확인하는 더미 큐브 데이터
 const vertices = new Float32Array([
@@ -45,7 +45,7 @@ const indicesWithLine = new Uint32Array([
 
 
 
-class TriangleList {
+export class TriangleList {
 
     private _depth: number;         // z-axis
     private _width: number;         // x-axis
@@ -151,12 +151,13 @@ class TriangleList {
 
 class BasicTerrain {
 
-    private _width: number;
-    private _depth: number;
-    private _heightMap: number[];
-    private _worldScale: number;
+    protected _heightMap: number[];
 
-    private _triangleList: TriangleList;
+    protected _width: number;
+    protected _depth: number;
+    protected _worldScale: number;
+
+    protected _triangleList: TriangleList;
 
     constructor(w: number, z: number, heightMap: number[], worldScale?: number) {
         this._width = w;

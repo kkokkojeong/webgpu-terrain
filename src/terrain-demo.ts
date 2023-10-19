@@ -5,6 +5,7 @@ import basicShader from "./shaders/basic";
 
 import ArcballCamera from './camera/ArcballCamera';
 import MouseHandler from './ui/MouseHandler';
+import FaultFormationTerrain from './FaultFormation';
 
 
 type PolygonMode = 'line' | 'fill'; 
@@ -27,12 +28,14 @@ class TerrainDemo {
     private _bindGroup: GPUBindGroup;
 
     // terrain
-    private _terrain: BasicTerrain;
+    // private _terrain: BasicTerrain;
+    private _terrain: FaultFormationTerrain;
 
     // ui, camera
     private _camera: ArcballCamera;
     private _handler: MouseHandler;
 
+    // private _polygonMode: PolygonMode = 'fill';
     private _polygonMode: PolygonMode = 'line';
 
     constructor(id: string, terrainData: {
@@ -54,7 +57,14 @@ class TerrainDemo {
         this._canvas.style.width = `${canvasWidth}px`;
         this._canvas.style.height = `${canvasHeight}px`;
 
-        this._terrain = new BasicTerrain(width, depth, heigts);
+        // this._terrain = new BasicTerrain(width, depth, heigts);
+
+        this._terrain = new FaultFormationTerrain(width, depth);
+        this._terrain.createFaultFormation(1000, 0, 100);
+        // test
+        // const t = new FaultFormationTerrain(width, depth, []);
+        // t.createFaultFormation(5, 0, 100);
+        // console.log(t);
 
         // create camera 일단 에러 무시 실행에는 지장 없음
         // this._camera = createCamera(this._canvas, {
@@ -89,7 +99,7 @@ class TerrainDemo {
         const pipeline = this._pipeline as GPURenderPipeline;
 
         const indexCount = this._terrain.getMesh().indices.length;
-        const vertexCount = this._terrain.getMesh().vertices.length / 3;
+        // const vertexCount = this._terrain.getMesh().vertices.length / 3;
 
         const textureView = context.getCurrentTexture().createView();
         const depthTexture = device.createTexture({
