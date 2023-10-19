@@ -142,8 +142,9 @@ class TriangleList {
         const worldScale = this._worldScale;
         const heights = this._data;
         const max = Math.max(...heights);
+        const min = Math.min(...heights);
 
-        this.center = new Vector3D(this._width * worldScale / 2, max / 2, this._depth * worldScale / 2);
+        this.center = new Vector3D(this._width * worldScale / 2, (max - min) / 2, this._depth * worldScale / 2);
     }
 }
 
@@ -182,7 +183,7 @@ class BasicTerrain {
         return this._triangleList;
     }
 
-    public getCenter(): Vector2D {
+    public getCenter(): Vector3D {
         return this._triangleList.center;
     }
 }

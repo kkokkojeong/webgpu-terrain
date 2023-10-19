@@ -261,7 +261,7 @@ class TerrainDemo {
     private _calcModelViewProjectionMatrix(deltaTime: number = 0) {
         // model transformation
         const center = this._terrain.getCenter();
-        const modelMatrix = mat4.translation([-center.x, -center.y - 300, 0]);
+        const modelMatrix = mat4.translation([-center.x, -center.y, -center.z]);
 
         // projection, viewing transformation
         const fov = utils.degToRad(45);

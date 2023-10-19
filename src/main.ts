@@ -14,14 +14,14 @@ window.onload = () => {
 
   let lastFrameMS = Date.now();
 
-  let animationId;
   const frame = () => {
     const now = Date.now();
     const deltaTime = (now - lastFrameMS) / 1000;
     lastFrameMS = now;
 
     demo.render(deltaTime);
-    animationId = window.requestAnimationFrame(frame);
+    
+    window.requestAnimationFrame(frame);
   }
 
   window.requestAnimationFrame(frame);
