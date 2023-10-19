@@ -11,12 +11,18 @@ window.onload = () => {
 
   const demo = new TerrainDemo("canvas-webgpu", {width: width, depth: height, heigts: data});
   
-  // let animationId;
-  // const animate = () => {
-  //   demo.render();
-  //   animationId = window.requestAnimationFrame(animate);
-  // }
-  // animate();
-  
-  demo.render();
+
+  let lastFrameMS = Date.now();
+
+  let animationId;
+  const frame = () => {
+    const now = Date.now();
+    const deltaTime = (now - lastFrameMS) / 1000;
+    lastFrameMS = now;
+
+    demo.render(deltaTime);
+    animationId = window.requestAnimationFrame(frame);
+  }
+
+  window.requestAnimationFrame(frame);
 };

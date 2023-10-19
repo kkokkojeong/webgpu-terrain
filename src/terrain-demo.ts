@@ -75,7 +75,7 @@ class TerrainDemo {
         console.log(this._camera);
     }
 
-    public async render() {
+    public async render(deltaTime: number) {
         if (!this._initialized) await this._init();
 
         // if (this._camera.tick()) {
@@ -121,27 +121,7 @@ class TerrainDemo {
             }
         });
 
-        // // model transformation
-        // const center = this._terrain.getCenter();
-        // const model = mat4.translation([-center.x, -center.y - 300, 0]);
-
-        // // projection, viewing transformation
-        // const fov = utils.degToRad(45);
-        // const aspect = this._canvas.width / this._canvas.height;
-        // const near = 0.1; 
-        // const far = 2000;
-
-        // // const eye = [0, 800, -500];
-        // // const target = [0.0, 0.0, 1.0];
-        // // const up = [0.0, 1.0, 0.0];
-
-        // const persp = mat4.perspective(fov, aspect, near, far);
-
-        // const camera = this._camera.matrix;
-        // //mat4.lookAt(eye, target, up);
-        // const projView = mat4.mul(persp, camera);
-
-        const modelViewProjection = this._calcModelViewProjectionMatrix();
+        const modelViewProjection = this._calcModelViewProjectionMatrix(deltaTime);
 
         device.queue.writeBuffer(this._uniformBuffer as GPUBuffer, 0, modelViewProjection as ArrayBuffer);
 
@@ -170,7 +150,6 @@ class TerrainDemo {
         const canvasFormat = navigator.gpu.getPreferredCanvasFormat();
         const device = await adapter.requestDevice();
         const context = this._canvas.getContext("webgpu") as GPUCanvasContext;
-        console.log("canvasFormat", canvasFormat);
 
         context.configure({
             device,
@@ -255,7 +234,6 @@ class TerrainDemo {
         new Uint32Array(indexBuffer.getMappedRange()).set(indices);
         indexBuffer.unmap();
 
-
         this._vertexBuffer = vertexBuffer;
         this._indexBuffer = indexBuffer;
         this._uniformBuffer = uniformBuffer;
@@ -272,8 +250,6 @@ class TerrainDemo {
             ]
         });
 
-        console.log(this._vertexBuffer, this._indexBuffer);
-
         this._initialized = true;
     }
 
@@ -281,12 +257,11 @@ class TerrainDemo {
     /**
      * Model-View-Projection Matrix
      */
-
     private _modelViewProjectionMatrix = mat4.create();
     private _calcModelViewProjectionMatrix(deltaTime: number = 0) {
         // model transformation
-        // const center = this._terrain.getCenter();
-        // const model = mat4.translation([-center.x, -center.y - 300, 0]);
+        const center = this._terrain.getCenter();
+        const modelMatrix = mat4.translation([-center.x, -center.y - 300, 0]);
 
         // projection, viewing transformation
         const fov = utils.degToRad(45);
@@ -296,16 +271,13 @@ class TerrainDemo {
 
         const projectionMatrix = mat4.perspective(fov, aspect, near, far);
 
-        // const camera = this._camera.matrix;
-        // mat4.lookAt(eye, target, up);
-        // const projView = mat4.mul(persp, camera);
-
         const viewMatrix = this._camera.update(deltaTime, this._handler.analog);
 
-        console.log(projectionMatrix);
-        console.log(viewMatrix);
-
+        // console.log(projectionMatrix);
+        // console.log(viewMatrix);
+    
         mat4.multiply(projectionMatrix, viewMatrix, this._modelViewProjectionMatrix);
+        mat4.multiply(this._modelViewProjectionMatrix, modelMatrix, this._modelViewProjectionMatrix);
 
         return this._modelViewProjectionMatrix;
     }
