@@ -19,6 +19,24 @@ class MouseHandler {
         this._element = el;
     }
 
+    get analog() {
+        const out = {
+            analog: {
+                x: this._analog.x,
+                y: this._analog.y,
+                zoom: this._analog.zoom,
+                touching: this._mouseDown
+            }
+        };
+
+        // Clear the analog values, as these accumulate.
+        this._analog.x = 0;
+        this._analog.y = 0;
+        this._analog.zoom = 0;
+
+        return out;
+    }
+
     constructor(el: HTMLElement) {
         this.element = el;
 
@@ -45,9 +63,9 @@ class MouseHandler {
         });
     }
 
-    private _removeDefaultHandlers() {
+    // private _removeDefaultHandlers() {
         // todo...
-    }
+    // }
 }
 
 export default MouseHandler;

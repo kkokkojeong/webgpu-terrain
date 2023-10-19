@@ -1,9 +1,10 @@
-import {mat4, utils} from 'wgpu-matrix';
+import {mat4, vec3, utils} from 'wgpu-matrix';
 
 import BasicTerrain from "./BasicTerrain";
 import basicShader from "./shaders/basic";
 
-import * as createCamera from '3d-view-controls';
+import ArcballCamera from './camera/ArcballCamera';
+import MouseHandler from './ui/MouseHandler';
 
 
 type PolygonMode = 'line' | 'fill'; 
@@ -28,7 +29,9 @@ class TerrainDemo {
     // terrain
     private _terrain: BasicTerrain;
 
-    private _camera: any;
+    // ui, camera
+    private _camera: ArcballCamera;
+    private _handler: MouseHandler;
 
     private _polygonMode: PolygonMode = 'line';
 
@@ -54,13 +57,20 @@ class TerrainDemo {
         this._terrain = new BasicTerrain(width, depth, heigts);
 
         // create camera 일단 에러 무시 실행에는 지장 없음
-        this._camera = createCamera(this._canvas, {
-            center: [0, 0, 0],
-            up: [0.0, 1.0, 0.0],
-            eye: [0, 500, -1000],
-            zoomMax: 10,
-            zoomSpeed: 2
+        // this._camera = createCamera(this._canvas, {
+        //     center: [0, 0, 0],
+        //     up: [0.0, 1.0, 0.0],
+        //     eye: [0, 500, -1000],
+        //     zoomMax: 10,
+        //     zoomSpeed: 2
+        // });
+
+        this._camera = new ArcballCamera({
+            position: vec3.create(0, 500, -1000),
+            target: vec3.create(0, 0, -0),
         });
+        
+        this._handler = new MouseHandler(this._canvas);
 
         console.log(this._camera);
     }
@@ -111,27 +121,29 @@ class TerrainDemo {
             }
         });
 
-        // model transformation
-        const center = this._terrain.getCenter();
-        const model = mat4.translation([-center.x, -center.y - 300, 0]);
+        // // model transformation
+        // const center = this._terrain.getCenter();
+        // const model = mat4.translation([-center.x, -center.y - 300, 0]);
 
-        // projection, viewing transformation
-        const fov = utils.degToRad(45);
-        const aspect = this._canvas.width / this._canvas.height;
-        const near = 0.1; 
-        const far = 2000;
+        // // projection, viewing transformation
+        // const fov = utils.degToRad(45);
+        // const aspect = this._canvas.width / this._canvas.height;
+        // const near = 0.1; 
+        // const far = 2000;
 
-        // const eye = [0, 800, -500];
-        // const target = [0.0, 0.0, 1.0];
-        // const up = [0.0, 1.0, 0.0];
+        // // const eye = [0, 800, -500];
+        // // const target = [0.0, 0.0, 1.0];
+        // // const up = [0.0, 1.0, 0.0];
 
-        const persp = mat4.perspective(fov, aspect, near, far);
+        // const persp = mat4.perspective(fov, aspect, near, far);
 
-        const camera = this._camera.matrix;
-        //mat4.lookAt(eye, target, up);
-        const projView = mat4.mul(persp, camera);
+        // const camera = this._camera.matrix;
+        // //mat4.lookAt(eye, target, up);
+        // const projView = mat4.mul(persp, camera);
 
-        device.queue.writeBuffer(this._uniformBuffer as GPUBuffer, 0, mat4.mul(projView, model)  as ArrayBuffer);
+        const modelViewProjection = this._calcModelViewProjectionMatrix();
+
+        device.queue.writeBuffer(this._uniformBuffer as GPUBuffer, 0, modelViewProjection as ArrayBuffer);
 
         renderPass.setPipeline(pipeline);
 
@@ -263,6 +275,39 @@ class TerrainDemo {
         console.log(this._vertexBuffer, this._indexBuffer);
 
         this._initialized = true;
+    }
+
+
+    /**
+     * Model-View-Projection Matrix
+     */
+
+    private _modelViewProjectionMatrix = mat4.create();
+    private _calcModelViewProjectionMatrix(deltaTime: number = 0) {
+        // model transformation
+        // const center = this._terrain.getCenter();
+        // const model = mat4.translation([-center.x, -center.y - 300, 0]);
+
+        // projection, viewing transformation
+        const fov = utils.degToRad(45);
+        const aspect = this._canvas.width / this._canvas.height;
+        const near = 0.1; 
+        const far = 2000;
+
+        const projectionMatrix = mat4.perspective(fov, aspect, near, far);
+
+        // const camera = this._camera.matrix;
+        // mat4.lookAt(eye, target, up);
+        // const projView = mat4.mul(persp, camera);
+
+        const viewMatrix = this._camera.update(deltaTime, this._handler.analog);
+
+        console.log(projectionMatrix);
+        console.log(viewMatrix);
+
+        mat4.multiply(projectionMatrix, viewMatrix, this._modelViewProjectionMatrix);
+
+        return this._modelViewProjectionMatrix;
     }
 }
 
