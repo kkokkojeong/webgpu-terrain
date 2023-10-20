@@ -26,6 +26,9 @@ class FaultFormationTerrain extends BasicTerrain {
         this._makeFaultFormation();
         this._normalizeHeightMap();
 
+        // TODO: Apply filter to height array
+        // ...
+
         this._triangleList = new TriangleList({
             width: this._width,
             depth: this._depth,
