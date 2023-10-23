@@ -76,7 +76,8 @@ class TerrainDemo {
         // });
 
         this._camera = new ArcballCamera({
-            position: vec3.create(0, 500, -1000),
+            // position: vec3.create(0, 500, -200),
+            position: vec3.create(0, 500, -500),
             target: vec3.create(0, 0, -0),
         });
         
