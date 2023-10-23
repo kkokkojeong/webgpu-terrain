@@ -60,7 +60,7 @@ class TerrainDemo {
         // this._terrain = new BasicTerrain(width, depth, heigts);
 
         this._terrain = new FaultFormationTerrain(width, depth);
-        this._terrain.createFaultFormation(1000, 0, 100);
+        this._terrain.createFaultFormation(1000, 0, 200.0, 0.2);
         // test
         // const t = new FaultFormationTerrain(width, depth, []);
         // t.createFaultFormation(5, 0, 100);

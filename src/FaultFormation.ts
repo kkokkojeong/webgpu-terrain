@@ -11,23 +11,26 @@ class FaultFormationTerrain extends BasicTerrain {
     private _minHeight: number;
     private _maxHeight: number;
     private _iterations: number;
+    private _filter: number;
     
     constructor(w: number, z: number, heightMap: number[] = [], worldScale?: number) {
         super(w, z, heightMap, worldScale);
     }
 
-    public createFaultFormation(iterations: number, minHeight: number, maxHeight: number) {
+    public createFaultFormation(iterations: number, minHeight: number, maxHeight: number, filter: number) {
         this._maxHeight = maxHeight;
         this._minHeight = minHeight;
         this._iterations = iterations;
+        this._filter = filter;
 
         this._resetHeightMap();
 
         this._makeFaultFormation();
-        this._normalizeHeightMap();
 
-        // TODO: Apply filter to height array
-        // ...
+        // https://en.wikipedia.org/wiki/Finite_impulse_response
+        this._applyFIRFilter();
+
+        this._normalizeHeightMap();
 
         this._triangleList = new TriangleList({
             width: this._width,
@@ -62,7 +65,8 @@ class FaultFormationTerrain extends BasicTerrain {
                     const cp = dirXin * dirZ - dirX * dirZin;
                     if (cp > 0) {
                         // accumulate height map`s value
-                        this._heightMap[z * this._width + x] += height 
+                        const curr = this._heightMap[z * this._width + x];
+                        this._heightMap[z * this._width + x] = curr + height 
                     }
                 }
             }
@@ -117,6 +121,62 @@ class FaultFormationTerrain extends BasicTerrain {
         }
 
         return {p1, p2};
+    }
+
+    private _applyFIRFilter() {
+        const getIdx = (x: number, z: number) => z * this._width + x;
+        const getHeight = (x: number, z: number) => this._heightMap[getIdx(x, z)];
+        const filterFIR = (x: number, z: number, val: number) => {
+            const filter = this._filter;
+
+            const idx = getIdx(x, z);
+            const curr = getHeight(x, z);
+
+            const acc = filter * val + (1 - filter) * curr;
+
+            this._heightMap[idx] = acc;
+
+            return acc;
+        }
+        
+        const heights = this._heightMap;
+
+
+        let prev = 0;
+
+        // left to right
+        for (let z = 0; z < this._depth; z++) {
+            prev = getHeight(0, z);
+            for (let x = 1; x < this._width; x++) {
+                prev = filterFIR(x, z, prev);
+            }
+        }
+
+        // right to left
+        for (let z = 0; z < this._depth; z++) {
+            prev = getHeight(this._width - 1, z);
+            for (let x = this._width - 2; x >= 0; x--) {
+                prev = filterFIR(x, z, prev);
+            }
+        }
+
+        // bottom to top
+        for (let x = 0; x < this._width; x++) {
+            prev = getHeight(x, 0);
+            for (let z = 1; z < this._depth; z++) {
+                prev = filterFIR(x, z, prev);
+            }
+        }
+        
+
+        // top to bottom
+        for (let x = 0; x < this._width; x++) {
+            prev = getHeight(x, this._depth - 1);
+            for (let z = this._depth - 2; z >= 0; z--) {
+                prev = filterFIR(x, z, prev);
+            }
+        }
+
     }
 }
 

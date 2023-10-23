@@ -48,7 +48,8 @@ const fs = `
 
     @fragment
     fn main(fsInput: FSInput) -> @location(0) vec4f {
-        return fsInput.color;
+        // return fsInput.color;
+        return vec4f(0.5, 0.5, 0.5, 1.0);
     }
 `;
 
