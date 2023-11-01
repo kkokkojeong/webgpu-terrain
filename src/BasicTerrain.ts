@@ -172,11 +172,25 @@ class BasicTerrain {
         this._init();
     }
 
+    protected getHeight(x: number, z: number) {
+        const idx = this._getIndex(x, z);
+        return this._heightMap[idx];
+    }
+
+    protected setHeight(x: number, z: number, v: number) {
+        const idx = this._getIndex(x, z);
+        this._heightMap[idx] = v;
+    }
+
     protected _resetHeightMap() {
         const len = this._width * this._depth;
         for (let i = 0; i < len; i++) {
             this._heightMap[i] = 0;
         }
+    }
+
+    private _getIndex(x: number, z: number) {
+        return z * this._width + x;
     }
 
     private _init() {

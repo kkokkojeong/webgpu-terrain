@@ -19,3 +19,24 @@ export function rotate(vec: Vec3, axis: Vec3, angle: number): Vec3 {
 export function lerp(a: Vec3, b: Vec3, s: number): Vec3 {
     return vec3.addScaled(a, vec3.sub(b, a), s);
 }
+
+export function nearestPowerOfTwo(x: number) {
+    let ret = 1;
+    if (x === 1) return 2;
+    while (ret < x) {
+        ret = ret * 2;
+    }
+    return ret;
+}
+
+export function randomFloatRange(start: number, end: number)
+{
+    if (end == start) {
+        return 0;
+    }
+
+    const delta = end - start;
+    const randomValue = Math.random() * delta + start;
+
+    return randomValue;
+}

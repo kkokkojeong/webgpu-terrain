@@ -29,7 +29,7 @@ class TerrainDemo {
     private _bindGroup: GPUBindGroup;
 
     // terrain
-    private _terrain: BasicTerrain | FaultFormationTerrain | MidpointDispTerrain;
+    private _terrain: any;
     // private _terrain: BasicTerrain;
     // private _terrain: FaultFormationTerrain;
     // private _terrain: MidpointDispTerrain;
@@ -70,7 +70,7 @@ class TerrainDemo {
         
 
         // Midpoint Displacement Terrain
-        this._terrain = new MidpointDispTerrain(width, depth);
+        this._terrain = new MidpointDispTerrain(256, 256);
         this._terrain.createMidpointDisplacement(3.0, 0, 100);
     
 
