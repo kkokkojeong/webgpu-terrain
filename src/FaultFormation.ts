@@ -73,13 +73,6 @@ class FaultFormationTerrain extends BasicTerrain {
         }
     }
 
-    private _resetHeightMap() {
-        const len = this._width * this._depth;
-        for (let i = 0; i < len; i++) {
-            this._heightMap[i] = 0;
-        }
-    }
-
     private _normalizeHeightMap() {
         const heights = this._heightMap;
         const min = Math.min(...heights);

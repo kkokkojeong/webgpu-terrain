@@ -165,7 +165,18 @@ class BasicTerrain {
         this._heightMap = heightMap;
         this._worldScale = worldScale || 3;
 
+        // this._init();
+    }
+
+    public createBasicTerrain() {
         this._init();
+    }
+
+    protected _resetHeightMap() {
+        const len = this._width * this._depth;
+        for (let i = 0; i < len; i++) {
+            this._heightMap[i] = 0;
+        }
     }
 
     private _init() {

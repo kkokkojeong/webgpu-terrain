@@ -6,6 +6,7 @@ import basicShader from "./shaders/basic";
 import ArcballCamera from './camera/ArcballCamera';
 import MouseHandler from './ui/MouseHandler';
 import FaultFormationTerrain from './FaultFormation';
+import MidpointDispTerrain from './MidpointDispTerrain';
 
 
 type PolygonMode = 'line' | 'fill'; 
@@ -28,8 +29,10 @@ class TerrainDemo {
     private _bindGroup: GPUBindGroup;
 
     // terrain
+    private _terrain: BasicTerrain | FaultFormationTerrain | MidpointDispTerrain;
     // private _terrain: BasicTerrain;
-    private _terrain: FaultFormationTerrain;
+    // private _terrain: FaultFormationTerrain;
+    // private _terrain: MidpointDispTerrain;
 
     // ui, camera
     private _camera: ArcballCamera;
@@ -57,23 +60,19 @@ class TerrainDemo {
         this._canvas.style.width = `${canvasWidth}px`;
         this._canvas.style.height = `${canvasHeight}px`;
 
+        // Basic Terrain
         // this._terrain = new BasicTerrain(width, depth, heigts);
+        // this._terrain.createBasicTerrain();
 
-        this._terrain = new FaultFormationTerrain(width, depth);
-        this._terrain.createFaultFormation(1000, 0, 200.0, 0.2);
-        // test
-        // const t = new FaultFormationTerrain(width, depth, []);
-        // t.createFaultFormation(5, 0, 100);
-        // console.log(t);
+        // Fault Formation Terrain
+        // this._terrain = new FaultFormationTerrain(width, depth);
+        // this._terrain.createFaultFormation(1000, 0, 200.0, 0.2);
+        
 
-        // create camera 일단 에러 무시 실행에는 지장 없음
-        // this._camera = createCamera(this._canvas, {
-        //     center: [0, 0, 0],
-        //     up: [0.0, 1.0, 0.0],
-        //     eye: [0, 500, -1000],
-        //     zoomMax: 10,
-        //     zoomSpeed: 2
-        // });
+        // Midpoint Displacement Terrain
+        this._terrain = new MidpointDispTerrain(width, depth);
+        this._terrain.createMidpointDisplacement(3.0, 0, 100);
+    
 
         this._camera = new ArcballCamera({
             // position: vec3.create(0, 500, -200),
@@ -82,8 +81,6 @@ class TerrainDemo {
         });
         
         this._handler = new MouseHandler(this._canvas);
-
-        console.log(this._camera);
     }
 
     public async render(deltaTime: number) {
@@ -92,8 +89,6 @@ class TerrainDemo {
         // if (this._camera.tick()) {
         //     return;
         // }
-
-        console.log("draw!!!");
 
         const device = this._device as GPUDevice;
         const context = this._context as GPUCanvasContext;

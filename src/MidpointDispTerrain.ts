@@ -9,13 +9,19 @@ import BasicTerrain from "./BasicTerrain";
 class MidpointDispTerrain extends BasicTerrain {
     
     private _roughness: number;
+    private _minHeight: number;
+    private _maxHeight: number;
 
     constructor(w: number, z: number, heightMap: number[] = [], worldScale?: number) {
         super(w, z, heightMap, worldScale);
     }
 
-    public createMidpointDisplacement(roughness: number) {
+    public createMidpointDisplacement(roughness: number, minHeight: number, maxHeight: number) {
         this._roughness = roughness;
+        this._minHeight = minHeight;
+        this._maxHeight = maxHeight;
+
+        this._resetHeightMap();
 
         this._diamondStep();
         this._squareStep();

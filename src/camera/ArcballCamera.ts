@@ -72,7 +72,7 @@ class ArcballCamera extends Camera {
     public update(deltaTime: number, input: any): Mat4 {
         const epsilon = 0.0000001;
 
-        console.log(input);
+        // console.log(input);
 
         if (input.analog.touching) {
             // Currently being dragged.
