@@ -44,13 +44,13 @@ class MidpointDispTerrain extends BasicTerrain {
 
         let rectSize = nearestPowerOfTwo(terrainSize);
         let currHeight = rectSize / 2;
-        let heightReduce = Math.pow(2, roughness);
+        let heightReduce = Math.pow(2, -roughness);
 
         console.log(terrainSize, rectSize);
 
         while (rectSize > 0) {
             this._diamondStep(rectSize, currHeight);
-            // this._squareStep();
+            this._squareStep(rectSize, currHeight);
 
             rectSize = Math.floor(rectSize / 2);
             currHeight *= heightReduce;
@@ -60,7 +60,7 @@ class MidpointDispTerrain extends BasicTerrain {
     }
 
     private _diamondStep(rectSize: number, currHeight: number) {
-        const halfRectSize = rectSize / 2;
+        const halfRectSize = Math.floor(rectSize / 2);
         const terrainSize = this._width;
         
         for (let y = 0; y < terrainSize; y += rectSize) {
@@ -110,7 +110,46 @@ class MidpointDispTerrain extends BasicTerrain {
        CurLeftMid = avg(CurPrevXCenterm CurTopleft, CurBotLeft, CurCenter)
     */
     private _squareStep(rectSize: number, currHeight: number) {
+        const halfRectSize = Math.floor(rectSize / 2);
+        const terrainSize = this._width;
 
+        console.log(halfRectSize)
+
+        for (let y = 0; y < terrainSize; y += rectSize) {
+            for (let x = 0; x < terrainSize; x += rectSize) {
+                let nextX = (x + rectSize) % terrainSize;
+                let nextY = (y + rectSize) % terrainSize;
+
+                if (nextX < x) {
+                    nextX = terrainSize - 1;
+                }
+                if (nextY < y) {
+                    nextY = terrainSize - 1;
+                }
+
+                const midX = (x + halfRectSize) % terrainSize;
+                const midY = (y + halfRectSize) % terrainSize;
+
+                const prevMidX = (x - halfRectSize + terrainSize) % terrainSize;
+                const prevMidY = (y - halfRectSize + terrainSize) % terrainSize;
+
+                const curTopLeft = this.getHeight(x, y);
+                const curTopRight = this.getHeight(nextX, y);
+                const curCenter = this.getHeight(midX, midY);
+                const prevYCenter = this.getHeight(midX, prevMidY);
+                const curBotLeft = this.getHeight(x, nextY);
+                const prevXCenter = this.getHeight(prevMidX, midY);
+
+                const randValue1 = randomFloatRange(-currHeight, currHeight);
+                const randValue2 = randomFloatRange(-currHeight, currHeight);
+
+                const curLeftMid = (curTopLeft + curCenter + curBotLeft + prevXCenter) / 4.0 + randValue1;
+                const curTopMid  = (curTopLeft + curCenter + curTopRight + prevYCenter) / 4.0 + randValue2;
+
+                this.setHeight(midX, y, curTopMid);
+                this.setHeight(x, midY, curLeftMid);
+            }
+        }
     }
 
     private _normalizeHeightMap() {
@@ -126,6 +165,8 @@ class MidpointDispTerrain extends BasicTerrain {
             const h = this._heightMap[i];
             this._heightMap[i] = (h - min) / delta * deltaRange + this._minHeight;
         }
+
+        console.log(this._heightMap);
     }
 }
 

@@ -21,7 +21,7 @@ window.onload = () => {
 
     demo.render(deltaTime);
     
-    // window.requestAnimationFrame(frame);
+    window.requestAnimationFrame(frame);
   }
 
   window.requestAnimationFrame(frame);

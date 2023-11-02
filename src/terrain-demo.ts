@@ -71,7 +71,7 @@ class TerrainDemo {
 
         // Midpoint Displacement Terrain
         this._terrain = new MidpointDispTerrain(256, 256);
-        this._terrain.createMidpointDisplacement(3.0, 0, 100);
+        this._terrain.createMidpointDisplacement(1.5, 0, 200);
     
 
         this._camera = new ArcballCamera({
